@@ -119,6 +119,23 @@ Reducers 定义了当 store 接收到 Actions 时如何改变应用的状态。�
 
 ## 数据流
 
+> Redux architecture revolves around a strict unidirectional data flow.
+
+Redux 架构遵守严格的单向数据流
+
+> This means that all data in an application follows the same lifecycle pattern, making the logic of your app more predictable and easier to understand.
+
+这意味着应用中所有的数据都遵循着相同的生命周期，这会让应用的逻辑可预测好理解
+
+> 4 steps
+>
+> 1. You call store.dispatch(action).
+> 2. The Redux store calls the reducer function you gave it.
+> 3. The root reducer may combine the output of multiple reducers into a single state tree.
+> 4. The Redux store saves the complete state tree returned by the root reducer.
+
+可预测和好理解来自于两个方面，第一，所有的数据都遵循单向数据流。第二，reducer都是纯函数，同样的输入一定有同样的输出。
+
 ## 该不该用 Redux
 
 或者说什么时候才需要考虑使用 Redux。
