@@ -11,8 +11,8 @@ v6.0.0
 > You can draw things onto the stage, add event listeners to them, move them, scale them, and rotate them independently from other shapes to support high performance animations, even if your application uses thousands of shapes.
 
 konva 是一个 canvas 框架，在 2d 上下文的基础上让 canvas 具有交互能力，支持桌面端和移动端。  
-konva 可以在桌面端和移动端处理高性能的动画，节点嵌套，图层，滤镜，缓存，事件等等。  
-你可以在画布上监听图形的各种事件，移动，拉伸，旋转图形，且独立于其他图形以支持高性能的动画表现，即使你的应用有上千个图形。
+konva 可以在桌面端和移动端处理高性能的动画，支持节点嵌套，图层，滤镜，缓存，事件等等。  
+你可以在画布上监听图形的各种事件，还可以移动，拉伸，旋转图形，且独立于其他图形以支持高性能的动画表现，即使你的应用有上千个图形。
 
 ## 如何工作
 
@@ -283,6 +283,58 @@ konva 支持自定义 filter
 
 ## Animation
 
+> To create custom animations with Konva, we can use the Konva.Animation
+> constructor which takes two arguments, the required update function and
+> an optional layer, or array of layers, that will be updated with each animation frame.
+> The animation function is passed a frame object which contains a time property which is the number
+> of milliseconds that the animation has been running, a timeDiff property which
+> is the number of milliseconds that have passed since the last frame,
+> and a frameRate property which is the current frame rate in frames per second.
+
+> The update function should never redraw the stage or a layer because the animation
+> engine will intelligently handle that for us.
+
+要注意的地方是，传入的 layer 参数，Konva 在做动画时，会自动 redraw。
+
+```js
+var anim = new Konva.Animation(function (frame) {
+  var time = frame.time,
+    timeDiff = frame.timeDiff,
+    frameRate = frame.frameRate;
+
+  // update stuff
+}, layer);
+
+anim.start();
+```
+
+> To stop an animation with Konva, we can use the stop() method.
+> To restart the animation, we can again call the start().
+
+可以控制开始和停止
+
+## select
+
+> To select a shape by id with Konva, we can use the find() method using the # selector.
+> The find() method always returns an array of elements, even if we are expecting it to return one element.
+> if you need only one element you can use findOne() method.
+> The find() method works for any node, including the stage, layers, groups, and shapes.
+
+```js
+// 可以用 id 来查找图形。要注意的是，id 不是唯一的
+var shape = stage.find("#myRect")[0];
+```
+
+> To select shapes by type with Konva, we can use the find() method with the name of the type or class name.
+> The find() method returns an array of nodes that match the selector string.
+
+```js
+// 还可以通过 type，来查找图形
+var shapes = stage.find("Rect");
+```
+
+> To select shapes by name with Konva, we can use the find() method using the . selector.
+> The find() method returns an array of nodes that match the selector string.
 
 ## tricks
 
