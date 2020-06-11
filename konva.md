@@ -336,6 +336,11 @@ var shapes = stage.find("Rect");
 > To select shapes by name with Konva, we can use the find() method using the . selector.
 > The find() method returns an array of nodes that match the selector string.
 
+```js
+// 通过name
+var shapes = stage.find(".rectangle");
+```
+
 ## tricks
 
 1. 获取当前鼠标操作的图形
