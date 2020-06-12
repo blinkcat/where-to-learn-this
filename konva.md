@@ -341,6 +341,18 @@ var shapes = stage.find("Rect");
 var shapes = stage.find(".rectangle");
 ```
 
+## 序列化
+
+> To save the stage as a JSON string with Konva, we can use the toJSON()
+> method which serializes the Konva Node tree into text which can be saved
+> in web storage or in an offline database. We can also serialize other nodes,
+> including layers, groups, and shapes.
+
+```js
+// save stage as a json string
+var json = stage.toJSON();
+```
+
 ## tricks
 
 1. 获取当前鼠标操作的图形
