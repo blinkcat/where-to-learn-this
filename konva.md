@@ -85,7 +85,7 @@ offset 的概念稍微有点难理解，可以用点的偏移来解释。在绘�
 4. 阴影
 5. 线条交汇点(line join)
 6. show / hide
-7. 鼠标指针样式(mouse cursor)
+7. 鼠标指针样式(mouse cursor) 其实是通过外层 dom 的 css 设置
 8. 混合模式(blend mode)
 
 ## Events
@@ -353,6 +353,101 @@ var shapes = stage.find(".rectangle");
 var json = stage.toJSON();
 ```
 
+> To deserialize a JSON string with Konva, we can use the Konva.Node.create()
+> method which creates a node from a JSON string. If we want to deserialize
+> a stage node, we can also pass in an optional container parameter.
+
+```js
+// create node using json string
+var stage = Konva.Node.create(json, "container");
+```
+
+> To get the data URL of the stage with Konva, we can use the toDataURL()
+> method which requires a callback function for Stage (for other nodes callback is not required).
+> In addition, we can also pass in a mime type such as image/jpeg and a quality value that ranges between 0 and 1.
+> We can also get the data URLs of specific nodes, including layers, groups, and shapes.
+
+```js
+var dataURL = stage.toDataURL();
+```
+
+> By default in Konva, exported images have the pixelRatio attribute set to 1. This means that if you export a stage with a size of 500x500, then the exported image will have the same size of 500x500.
+
+```js
+stage.toDataURL({
+  pixelRatio: 2, // or other value you need
+});
+```
+
+## performance
+
+1. Shape Caching
+
+> One way to drastically improve drawing performance for complex Konva shapes is to cache them as images.
+> This can be achieved by using the cache() method to convert a node into an image object.
+
+2. Layer Management
+
+> When creating Konva applications, the most important thing to consider,
+> in regards to performance, is layer management. One of the things that makes
+> Konva stand out from other canvas libraries is that it enables us to create
+> individual layers, each with their own canvas elements. This means that we can
+> animate, transition, or update some stage elements, while not redrawing others.
+> If we inspect the DOM of a Konva stage, we’ll see that there is actually one
+> canvas element per layer.
+
+将经常变化图形和不常变化的图形放到不同的图层中
+
+> Note: Do not create too many layers. Usually 3-5 is max.
+
+3. batchDraw method
+
+> No matter how many times you call batchDraw(), Konva will automatically
+> limit the number of redraws per second based on the maximum number of frames
+> per second that the browser can handle at any given point in time.
+
+4. Optimize Animation
+
+> If you animation have frames without any updates (no nodes are changed) you may return false from animation function.
+
+> In this case Konva wouldn’t update layers.
+
+5. Shape Redraw
+
+> But in small set of cases it is possible to update Konva.Node without updating whole layer.
+> You can call shape.draw(), BUT remember that in this case shape will be drawn OVER existing canvas.
+> So it is not possible to use this tip if your node should be placed under other nodes or if it has an opacity.
+
+6. If your shape has only position transformation (x and y, no scale, rotation) set transformsEnabled = 'position'
+
+7. If you don’t need event on layer set layer.hitGraphEnabled(false). Or use Konva.FastLayer.
+
+8. For mobile application set viewport: \<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"\>
+
+9. If you have bad performance on retina devices set Konva.pixelRatio = 1. Make sure that quality of result is ok for you.
+
+10. While dragging a node you can move it on separate layer. Then move it back to original layer.
+
+11. Optimize Stroke Drawing
+
+12. If a shape has fill, stroke and opacity you may set shape.perfectDrawEnabled(false).
+
+> If you have a shape with fill and very small stroke you can set shape.hitStrokeWidth(0) to remove stroke from hit graph.
+> Don’t use this property if your stroke is critical for hit detection (like non closed lines).
+
+13. Try to set shape.listening(false) where possible.
+
+> You can set listening(false) to shape to remove it from hit graph. It will increase performance.
+> In some cases it may be very useful and will not touch whole logic of your application.
+
+14. Avoid Memory Leaks
+
+15. Don’t create large stages. Try to make canvases as small, as possible.
+
+16. Do not create too many layers. Usually 3-5 is max.
+
+17. Hide (or remove from layer) invisible objects (or objects that go out of the screen).
+
 ## tricks
 
 1. 获取当前鼠标操作的图形
@@ -375,3 +470,8 @@ const overlapping = Konva.Util.haveIntersection(
 
 1. [Konva](https://konvajs.org/docs/index.html)
 2. [Snap to grid with KonvaJS](https://medium.com/@pierrebleroux/snap-to-grid-with-konvajs-c41eae97c13f)
+
+## DIY Demo
+
+1. [konva 曲线 可控制](https://stackblitz.com/edit/js-dooao9)
+2. [konva save as image](https://js-ceu59p.stackblitz.io)
