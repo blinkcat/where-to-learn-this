@@ -470,6 +470,7 @@ const overlapping = Konva.Util.haveIntersection(
 
 1. [Konva](https://konvajs.org/docs/index.html)
 2. [Snap to grid with KonvaJS](https://medium.com/@pierrebleroux/snap-to-grid-with-konvajs-c41eae97c13f)
+3. [Canvas Scrolling Demo](https://konvajs.org/docs/sandbox/Canvas_Scrolling.html)
 
 ## DIY Demo
 
