@@ -244,4 +244,139 @@ lineDashOffset = value;
 
 ### lineJoin
 
-> lineJoin 的属性值决定了图形中两线段连接处所显示的样子。它可以是这三种之一：round, bevel 和 miter。默认是 miter。
+> lineJoin 的属性值决定了图形中两线段连接处所显示的样子。它可以是这三种之一：round, bevel 和 miter。默认是 miter。  
+> ![lineJoin](https://developer.mozilla.org/@api/deki/files/89/=Canvas_linejoin.png)
+
+#### miterLimit
+
+> miterLimit 属性设置或返回最大斜接长度。  
+> 斜接长度指的是在两条线交汇处内角和外角之间的距离  
+> ![miterLimit](https://www.runoob.com/wp-content/uploads/2013/11/img_miterlimitFig.gif)  
+> 只有当 lineJoin 属性为 "miter" 时，miterLimit 才有效。
+> 边角的角度越小，斜接长度就会越大。  
+> 为了避免斜接长度过长，我们可以使用 miterLimit 属性。  
+> 如果斜接长度超过 miterLimit 的值，边角会以 lineJoin 的 "bevel" 类型来显示（Fig 3）：
+> ![miterLimit](https://www.runoob.com/wp-content/uploads/2013/11/img_miterlimitBevelFig.gif)
+
+### 使用虚线
+
+> 用 setLineDash 方法和 lineDashOffset 属性来制定虚线样式. setLineDash 方法接受一个数组，来指定线段与间隙的交替；lineDashOffset 属性设置起始偏移量.
+
+## 渐变 Gradients
+
+```js
+// createLinearGradient 方法接受 4 个参数，表示渐变的起点 (x1,y1) 与终点 (x2,y2)。
+createLinearGradient(x1, y1, x2, y2);
+// createRadialGradient 方法接受 6 个参数，前三个定义一个以 (x1,y1) 为原点，半径为 r1 的圆，后三个参数则定义另一个以 (x2,y2) 为原点，半径为 r2 的圆。
+createRadialGradient(x1, y1, r1, x2, y2, r2);
+```
+
+createLinearGradient 中定义的起点和终点也包含了渐变的方向，而 createRadialGradient 的两个圆，根据半径的大小，也可以表示方向。但是渐变是从起点圆的外侧开始的。
+
+> ![createRadialGradient](./images/createRadialGradient.png)  
+> 黄色是渐变起点圆，紫色是渐变终点圆，不要想当然认为渐变是从起点圆的圆心开始的。  
+> 渐变区域事实是从起点圆外层开始，也就是上图黄色双向箭头指示的区域。
+
+> 创建出 canvasGradient 对象后，我们就可以用 addColorStop 方法给它上色了。
+
+```js
+// addColorStop 方法接受 2 个参数，position 参数必须是一个 0.0 与 1.0 之间的数值，表示渐变中颜色所在的相对位置。例如，0.5 表示颜色会出现在正中间。color 参数必须是一个有效的 CSS 颜色值（如 #FFF， rgba(0,0,0,1)，等等）。
+gradient.addColorStop(position, color);
+```
+
+> 你可以根据需要添加任意多个色标（color stops）。下面是最简单的线性黑白渐变的例子。
+
+```js
+var lineargradient = ctx.createLinearGradient(0, 0, 150, 150);
+lineargradient.addColorStop(0, "white");
+lineargradient.addColorStop(1, "black");
+```
+
+## 图案样式 Patterns
+
+```js
+// 该方法接受两个参数。Image 可以是一个 Image 对象的引用，或者另一个 canvas 对象。Type 必须是下面的字符串值之一：repeat，repeat-x，repeat-y 和 no-repeat。
+createPattern(image, type);
+```
+
+> 图案的应用跟渐变很类似的，创建出一个 pattern 之后，赋给 fillStyle 或 strokeStyle 属性即可。
+
+## 阴影 Shadows
+
+```js
+// shadowOffsetX 和 shadowOffsetY 用来设定阴影在 X 和 Y 轴的延伸距离，它们是不受变换矩阵所影响的。负值表示阴影会往上或左延伸，正值则表示会往下或右延伸，它们默认都为 0。
+shadowOffsetX = float;
+
+// shadowOffsetX 和 shadowOffsetY 用来设定阴影在 X 和 Y 轴的延伸距离，它们是不受变换矩阵所影响的。负值表示阴影会往上或左延伸，正值则表示会往下或右延伸，它们默认都为 0。
+shadowOffsetY = float;
+
+// shadowBlur 用于设定阴影的模糊程度，其数值并不跟像素数量挂钩，也不受变换矩阵的影响，默认为 0。
+shadowBlur = float;
+
+// shadowColor 是标准的 CSS 颜色值，用于设定阴影颜色效果，默认是全透明的黑色。
+shadowColor = color;
+```
+
+## Canvas 填充规则
+
+> 当我们用到 fill（或者 clip 和 isPointinPath ）你可以选择一个填充规则，该填充规则根据某处在路径的外面或者里面来决定该处是否被填充，这对于自己与自己路径相交或者路径被嵌套的时候是有用的。
+
+> 两个可能的值：
+>
+> - "nonzero": [non-zero winding rule](http://en.wikipedia.org/wiki/Nonzero-rule), 默认值.
+> - "evenodd": [even-odd winding rule](http://en.wikipedia.org/wiki/Even%E2%80%93odd_rule).
+
+> nonzero  
+> 字面意思是“非零”。按该规则，要判断一个点是否在图形内，从该点作任意方向的一条射线，然后检测射线与图形路径的交点情况。从 0 开始计数，路径从左向右穿过射线则计数加 1，从右向左穿过射线则计数减 1。得出计数结果后，如果结果是 0，则认为点在图形外部，否则认为在内部。下图演示了 nonzero 规则:  
+> ![nonzero](./images/nonzero.png)
+
+> evenodd  
+> 字面意思是“奇偶”。按该规则，要判断一个点是否在图形内，从该点作任意方向的一条射线，然后检测射线与图形路径的交点的数量。如果结果是奇数则认为点在内部，是偶数则认为点在外部。下图演示了 evenodd 规则:  
+> ![evenodd](./images/evenodd.png)
+
+## 绘制文本
+
+```js
+// 在指定的(x,y)位置填充指定的文本，绘制的最大宽度是可选的.
+fillText(text, x, y [, maxWidth])
+// 在指定的(x,y)位置绘制文本边框，绘制的最大宽度是可选的.
+strokeText(text, x, y [, maxWidth])
+```
+
+### 有样式的文本
+
+```js
+// 当前我们用来绘制文本的样式. 这个字符串使用和 CSS font 属性相同的语法. 默认的字体是 10px sans-serif。
+font = value;
+// 文本对齐选项. 可选的值包括：start, end, left, right or center. 默认值是 start。
+textAlign = value;
+// 基线对齐选项. 可选的值包括：top, hanging, middle, alphabetic, ideographic, bottom。默认值是 alphabetic。
+textBaseline = value;
+// 文本方向。可能的值包括：ltr, rtl, inherit。默认值是 inherit。
+direction = value;
+```
+
+> 下面的图片（from the [WHATWG](http://www.whatwg.org/)）展示了 textBaseline 属性支持的不同的基线情况：  
+> ![textBaseline](http://www.whatwg.org/specs/web-apps/current-work/images/baselines.png)
+
+#### textBaseline
+
+> 决定文字垂直方向的对齐方式。 默认值是 alphabetic。  
+> ![textBaseline](./images/textBaseline.png)
+
+### 预测量文本宽度
+
+> 当你需要获得更多的文本细节时，下面的方法可以给你测量文本的方法。
+
+```js
+// 将返回一个 TextMetrics 对象的宽度、所在像素，这些体现文本特性的属性。
+measureText();
+```
+
+```js
+function draw() {
+  var ctx = document.getElementById("canvas").getContext("2d");
+  var text = ctx.measureText("foo"); // TextMetrics object
+  text.width; // 16;
+}
+```
