@@ -380,3 +380,125 @@ function draw() {
   text.width; // 16;
 }
 ```
+
+## Using images
+
+### 获得需要绘制的图片
+
+> canvas 的 API 可以使用下面这些类型中的一种作为图片的源：
+
+```js
+// 这些图片是由Image()函数构造出来的，或者任何的<img>元素
+HTMLImageElement;
+// 用一个HTML的 <video>元素作为你的图片源，可以从视频中抓取当前帧作为一个图像
+HTMLVideoElement;
+// 可以使用另一个 <canvas> 元素作为你的图片源。
+HTMLCanvasElement;
+// 这是一个高性能的位图，可以低延迟地绘制，它可以从上述的所有源以及其它几种源中生成。
+ImageBitmap;
+```
+
+#### 使用其它域名下的图片
+
+> 在 HTMLImageElement 上使用 crossOrigin 属性，你可以请求加载其它域名上的图片。如果图片的服务器允许跨域访问这个图片，那么你可以使用这个图片而不污染 canvas，否则，使用这个图片将会污染 canvas。
+
+## 绘制图片
+
+```js
+// 其中 image 是 image 或者 canvas 对象，x 和 y 是其在目标 canvas 里的起始坐标。
+drawImage(image, x, y);
+// 这个方法多了2个参数：width 和 height，这两个参数用来控制 当向canvas画入时应该缩放的大小
+drawImage(image, x, y, width, height);
+// 第一个参数和其它的是相同的，都是一个图像或者另一个 canvas 的引用。其它8个参数最好是参照右边的图解，前4个是定义图像源的切片位置和大小，后4个则是定义切片的目标显示位置和大小。
+drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+```
+
+### 理解源元素大小
+
+> drawImage()方法在绘制时使用源元素的 CSS 大小。
+
+> 例如，如果加载图像并在其构造函数中指定可选的大小参数，则必须使用所创建实例的 naturalWidth 和 naturalHeight 属性来正确计算裁剪和缩放区域等内容，而不是 element.width 和 element.height。如果元素是<video\> 元素，则 videoWidth 和 videoHeight 也是如此，依此类推。
+
+意思是计算的时候是采用图片的 naturalWidth，naturalHeight。
+
+## 变形 Transformations
+
+> 变形是一种更强大的方法，可以将原点移动到另一点、对网格进行旋转和缩放。
+
+### 状态的保存和恢复 Saving and restoring state
+
+```js
+// 保存画布(canvas)的所有状态
+save();
+// save 和 restore 方法是用来保存和恢复 canvas 状态的，都没有参数。Canvas 的状态就是当前画面应用的所有样式和变形的一个快照。
+restore();
+```
+
+> Canvas 状态存储在栈中，每当 save()方法被调用后，当前的状态就被推送到栈中保存。一个绘画状态包括：
+>
+> - 当前应用的变形（即移动，旋转和缩放，见下）
+> - 以及下面这些属性：strokeStyle, fillStyle, globalAlpha, lineWidth, lineCap, lineJoin, miterLimit, lineDashOffset, shadowOffsetX, shadowOffsetY, shadowBlur, shadowColor, globalCompositeOperation, font, textAlign, textBaseline, direction, imageSmoothingEnabled
+> - 当前的裁切路径（clipping path）
+
+> 你可以调用任意多次 save 方法。每一次调用 restore 方法，上一个保存的状态就从栈中弹出，所有设定都恢复。
+
+### 移动 Translating
+
+> 它用来移动 canvas 和它的原点到一个不同的位置。
+
+```js
+// translate 方法接受两个参数。x 是左右偏移量，y 是上下偏移量，如右图所示。
+translate(x, y);
+```
+
+> ![Translating](https://developer.mozilla.org/@api/deki/files/85/=Canvas_grid_translate.png)
+
+### 旋转 Rotating
+
+> 它用于以原点为中心旋转 canvas。
+
+```js
+// 这个方法只接受一个参数：旋转的角度(angle)，它是顺时针方向的，以弧度为单位的值。
+rotate(angle);
+```
+
+> 旋转的中心点始终是 canvas 的原点，如果要改变它，我们需要用到 translate 方法。
+
+### 缩放 Scaling
+
+> 接着是缩放。我们用它来增减图形在 canvas 中的像素数目，对形状，位图进行缩小或者放大。
+
+```js
+// scale  方法可以缩放画布的水平和垂直的单位。两个参数都是实数，可以为负数，x 为水平缩放因子，y 为垂直缩放因子，如果比1小，会比缩放图形， 如果比1大会放大图形。默认值为1， 为实际大小。
+scale(x, y);
+```
+
+> 画布初始情况下， 是以左上角坐标为原点的第一象限。如果参数为负实数， 相当于以 x 或 y 轴作为对称轴镜像反转（例如， 使用 translate(0,canvas.height); scale(1,-1); 以 y 轴作为对称轴镜像反转， 就可得到著名的笛卡尔坐标系，左下角为原点）。
+
+> 默认情况下，canvas 的 1 个单位为 1 个像素。举例说，如果我们设置缩放因子是 0.5，1 个单位就变成对应 0.5 个像素，这样绘制出来的形状就会是原先的一半。同理，设置为 2.0 时，1 个单位就对应变成了 2 像素，绘制的结果就是图形放大了 2 倍。
+
+### 变形 Transforms
+
+```js
+// 这个方法是将当前的变形矩阵乘上一个基于自身参数的矩阵，如下面的矩阵所示：
+// a  c  e
+// b  d  f
+// 0  0  1
+// 如果任意一个参数是Infinity，变形矩阵也必须被标记为无限大，否则会抛出异常。
+transform(a, b, c, d, e, f);
+// 这个方法会将当前的变形矩阵重置为单位矩阵，然后用相同的参数调用 transform 方法。如果任意一个参数是无限大，那么变形矩阵也必须被标记为无限大，否则会抛出异常。从根本上来说，该方法是取消了当前变形,然后设置为指定的变形,一步完成。
+setTransform(a, b, c, d, e, f);
+// 重置当前变形为单位矩阵，它和调用以下语句是一样的：ctx.setTransform(1, 0, 0, 1, 0, 0);
+resetTransform();
+```
+
+这个函数的参数各自代表如下：
+
+| 参数 | 描述               |
+| ---- | ------------------ |
+| a    | 水平方向的缩放     |
+| b    | 水平方向的倾斜偏移 |
+| c    | 竖直方向的倾斜偏移 |
+| d    | 竖直方向的缩放     |
+| e    | 水平方向的移动     |
+| f    | 竖直方向的移动     |
