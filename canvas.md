@@ -502,3 +502,66 @@ resetTransform();
 | d    | 竖直方向的缩放     |
 | e    | 水平方向的移动     |
 | f    | 竖直方向的移动     |
+
+## 组合 Compositing
+
+### globalCompositeOperation
+
+> 我们不仅可以在已有图形后面再画新图形，还可以用来遮盖指定区域，清除画布中的某些部分（清除区域不仅限于矩形，像 clearRect()方法做的那样）以及更多其他操作。
+
+```js
+// 这个属性设定了在画新图形时采用的遮盖策略，其值是一个标识12种遮盖方式的字符串。
+globalCompositeOperation = type;
+```
+
+[Compositing 示例](https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Compositing/Example)
+
+### 裁切路径
+
+> 裁切路径和普通的 canvas 图形差不多，不同的是它的作用是遮罩，用来隐藏不需要的部分。如右图所示。红边五角星就是裁切路径，所有在路径以外的部分都不会在 canvas 上绘制出来。
+
+> ![clip](https://mdn.mozillademos.org/files/209/Canvas_clipping_path.png)
+
+> 如果和上面介绍的 globalCompositeOperation 属性作一比较，它可以实现与 source-in 和 source-atop 差不多的效果。最重要的区别是裁切路径不会在 canvas 上绘制东西，而且它永远不受新图形的影响。这些特性使得它在特定区域里绘制图形时相当好用。
+
+```js
+// 将当前正在构建的路径转换为当前的裁剪路径。
+void ctx.clip();
+/**
+ * fillRule
+ *   这个算法判断一个点是在路径内还是在路径外。
+ *   允许的值：
+ *   "nonzero": 非零环绕原则，默认的原则。
+ *   "evenodd": 奇偶环绕原则。
+ */
+void ctx.clip(fillRule);
+/**
+ * path
+ *  需要剪切的 Path2D 路径。
+ */
+void ctx.clip(path, fillRule);
+```
+
+```js
+// Create a circular clipping path
+ctx.beginPath();
+ctx.arc(0, 0, 60, 0, Math.PI * 2, true);
+ctx.clip();
+```
+
+裁切路径创建之后所有出现在它里面的东西才会画出来。
+
+## 基本的动画
+
+> 可能最大的限制就是图像一旦绘制出来，它就是一直保持那样了。如果需要移动它，我们不得不对所有东西（包括之前的）进行重绘。重绘是相当费时的，而且性能很依赖于电脑的速度。
+
+### 动画的基本步骤
+
+1. 清空 canvas
+   > 除非接下来要画的内容会完全充满 canvas （例如背景图），否则你需要清空所有。最简单的做法就是用 clearRect 方法。
+2. 保存 canvas 状态
+   > 如果你要改变一些会改变 canvas 状态的设置（样式，变形之类的），又要在每画一帧之时都是原始状态的话，你需要先保存一下。
+3. 绘制动画图形（animated shapes）
+   > 这一步才是重绘动画帧。
+4. 恢复 canvas 状态
+   > 如果已经保存了 canvas 的状态，可以先恢复它，然后重绘下一帧。
