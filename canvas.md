@@ -565,3 +565,148 @@ ctx.clip();
    > 这一步才是重绘动画帧。
 4. 恢复 canvas 状态
    > 如果已经保存了 canvas 的状态，可以先恢复它，然后重绘下一帧。
+
+## 像素操作
+
+### ImageData 对象
+
+> ImageData 对象中存储着 canvas 对象真实的像素数据，它包含以下几个只读属性：
+
+```js
+// 图片宽度，单位是像素
+width;
+// 图片高度，单位是像素
+height;
+// Uint8ClampedArray类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。
+data;
+```
+
+> data 属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始像素数据。每个像素用 4 个 1bytes 值(按照红，绿，蓝和透明值的顺序; 这就是"RGBA"格式) 来代表。每个颜色值部份用 0 至 255 来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引 0 位置。像素从左到右被处理，然后往下，遍历整个数组。
+
+> Uint8ClampedArray 包含高度 × 宽度 × 4 bytes 数据，索引值从 0 到(高度 × 宽度 ×4)-1
+
+### 创建一个 ImageData 对象
+
+```js
+// 创建了一个新的具体特定尺寸的ImageData对象。所有像素被预设为透明黑。
+var myImageData = ctx.createImageData(width, height);
+// 也可以创建一个被anotherImageData对象指定的相同像素的ImageData对象。这个新的对象像素全部被预设为透明黑。这个并非复制了图片数据。
+var myImageData = ctx.createImageData(anotherImageData);
+```
+
+### 得到场景像素数据
+
+```js
+var myImageData = ctx.getImageData(left, top, width, height);
+```
+
+> 这个方法会返回一个 ImageData 对象，它代表了画布区域的对象数据，此画布的四个角落分别表示为(left, top), (left + width, top), (left, top + height), 以及(left + width, top + height)四个点。这些坐标点被设定为画布坐标空间元素。
+
+> **注：任何在画布以外的元素都会被返回成一个透明黑的 ImageData 对像。**
+
+### 在场景中写入像素数据
+
+```js
+// dx和dy参数表示你希望在场景内左上角绘制的像素数据所得到的设备坐标
+ctx.putImageData(myImageData, dx, dy);
+```
+
+### 保存图片
+
+> HTMLCanvasElement 提供一个 toDataURL()方法，此方法在保存图片的时候非常有用。它返回一个包含被类型参数规定的图像表现格式的数据链接。返回的图片分辨率是 96dpi。
+
+```js
+// 默认设定。创建一个PNG图片。
+// Default setting. Creates a PNG image.
+canvas.toDataURL("image/png");
+// 创建一个JPG图片。你可以有选择地提供从0到1的品质量，1表示最好品质，0基本不被辨析但有比较小的文件大小。
+canvas.toDataURL("image/jpeg", quality);
+// 这个创建了一个在画布中的代表图片的Blob对像。
+canvas.toBlob(callback, type, encoderOptions);
+```
+
+## canvas 的优化
+
+### 在离屏 canvas 上预渲染相似的图形或重复的对象
+
+> 如果发现自己在每个动画帧上重复了一些相同的绘制操作，请考虑将其分流到屏幕外的画布上。 然后，您可以根据需要频繁地将屏幕外图像渲染到主画布上，而不必首先重复生成该图像的步骤。
+
+### 避免浮点数的坐标点，用整数取而代之
+
+> 当你画一个没有整数坐标点的对象时会发生子像素渲染。
+
+```js
+ctx.drawImage(myImage, 0.3, 0.5);
+```
+
+> 浏览器为了达到抗锯齿的效果会做额外的运算。为了避免这种情况，请保证在你调用 drawImage()函数时，用 Math.floor()函数对所有的坐标点取整。
+
+### 不要在用 drawImage 时缩放图像
+
+> 在离屏 canvas 中缓存图片的不同尺寸，而不要用 drawImage()去缩放它们。
+
+### 使用多层画布去画一个复杂的场景
+
+> 在您的应用程序中，您可能会发现某些对象需要经常移动或更改，而其他对象则保持相对静态。 在这种情况下，可能的优化是使用多个\<canvas>元素对您的项目进行分层。
+
+> 例如，假设您有一个游戏，其 UI 位于顶部，中间是游戏性动作，底部是静态背景。 在这种情况下，您可以将游戏分成三个\<canvas>层。 UI 将仅在用户输入时发生变化，游戏层随每个新框架发生变化，并且背景通常保持不变。
+
+```html
+<div id="stage">
+  <canvas id="ui-layer" width="480" height="320"></canvas>
+  <canvas id="game-layer" width="480" height="320"></canvas>
+  <canvas id="background-layer" width="480" height="320"></canvas>
+</div>
+
+<style>
+  #stage {
+    width: 480px;
+    height: 320px;
+    position: relative;
+    border: 2px solid black;
+  }
+  canvas {
+    position: absolute;
+  }
+  #ui-layer {
+    z-index: 3;
+  }
+  #game-layer {
+    z-index: 2;
+  }
+  #background-layer {
+    z-index: 1;
+  }
+</style>
+```
+
+### 用 CSS 设置大的背景图
+
+> 如果像大多数游戏那样，你有一张静态的背景图，用一个静态的<div>元素，结合 background 特性，以及将它置于画布元素之后。这么做可以避免在每一帧在画布上绘制大图。
+
+### 用 CSS transforms 特性缩放画布
+
+> CSS transforms 使用 GPU，因此速度更快。 最好的情况是不直接缩放画布，或者具有较小的画布并按比例放大，而不是较大的画布并按比例缩小。
+
+### 关闭透明度
+
+> 如果你的游戏使用画布而且不需要透明，当使用 HTMLCanvasElement.getContext() 创建一个绘图上下文时把 alpha 选项设置为 false 。这个选项可以帮助浏览器进行内部优化。
+
+```js
+var ctx = canvas.getContext("2d", { alpha: false });
+```
+
+### 更多的贴士
+
+- 将画布的函数调用集合到一起（例如，画一条折线，而不要画多条分开的直线）
+- 避免不必要的画布状态改变
+- 渲染画布中的不同点，而非整个新状态
+- 尽可能避免 shadowBlur 特性
+- 尽可能避免 text rendering
+- 尝试不同的方法来清除画布(clearRect() vs. fillRect() vs. 调整 canvas 大小)
+- 有动画，请使用 window.requestAnimationFrame() 而非 window.setInterval()
+- 请谨慎使用大型物理库
+
+## 终曲
+
+> 恭喜你！你已经结束了 Canvas 的教程！这些知识将帮助你在 web 中创建优秀的 2D 图形。
