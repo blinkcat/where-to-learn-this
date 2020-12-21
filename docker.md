@@ -1,2 +1,15 @@
 # docker
 
+## basic
+
+1. [Alpine, Slim, Stretch, Buster, Jessie, Bullseye — What are the Differences in Docker Images?](https://medium.com/swlh/alpine-slim-stretch-buster-jessie-bullseye-bookworm-what-are-the-differences-in-docker-62171ed4531d)
+2. [Alpine Linux 常用命令](https://zhuanlan.zhihu.com/p/95679468)
+3. [apt 与 apt-get 命令的区别与解释](https://www.cnblogs.com/tekkaman/p/9988297.html)
+4. [Docker — 从入门到实践](https://www.cntofu.com/book/139/index.html)
+
+## docker node
+
+1. [Dockerizing a Node.js web app](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/)
+2. [Building Efficient Dockerfiles - Node.js](http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/)
+3. [Introducing `npm ci` for faster, more reliable builds](https://blog.npmjs.org/post/171556855892/introducing-npm-ci-for-faster-more-reliable)
+4. [node](https://hub.docker.com/_/node/)
