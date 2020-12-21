@@ -13,3 +13,12 @@
 2. [Building Efficient Dockerfiles - Node.js](http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/)
 3. [Introducing `npm ci` for faster, more reliable builds](https://blog.npmjs.org/post/171556855892/introducing-npm-ci-for-faster-more-reliable)
 4. [node](https://hub.docker.com/_/node/)
+
+## front-end
+
+1. [Docker 教程](https://www.runoob.com/docker/docker-tutorial.html)
+2. [写给前端的 Docker 实战教程](https://zhuanlan.zhihu.com/p/83309276)
+3. [Leverage build cache](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache)
+4. [Use multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
+5. [如何使用 docker 部署前端应用](https://segmentfault.com/a/1190000018447062)
+6. [Use multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
